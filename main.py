@@ -1,4 +1,3 @@
-# Import API class from pexels_api package
 import os
 import random
 import time
@@ -91,7 +90,9 @@ def get_saved_comments():
 # Retrieve pexels-api Photo object
 photographer = ""
 originalImageLink = ""
-def retrieve_photo(query):
+
+
+def retrieve_photo( query ):
     # Search for alot_word photo
     pexelsApi.search(query, page=1, results_per_page=15)
 
@@ -108,12 +109,12 @@ def retrieve_photo(query):
     originalImageLink = photos[photo_idx].original
 
     opener = urllib.request.URLopener()
-    opener.addheader('User-Agent', 'Mozilla/5.0')
+    opener.addheader(('User-Agent', 'Mozilla/5.0'))
     filename, headers = opener.retrieve(photos[photo_idx].original, 'wordPhoto.png')
 
 
 # Image manipulation - an ALOT is born!
-def create_alot(alot_word, is_alot_of):
+def create_alot( alot_word, is_alot_of ):
     img_background = Image.open("alot-background.png")
     img_mask = Image.open("alot-mask.png").convert('L')
     img_details = Image.open("alot-details.png").convert("RGBA")
@@ -122,17 +123,17 @@ def create_alot(alot_word, is_alot_of):
     img_alot.paste(img_details, img_details)
     alot_font = ImageFont.truetype("Roboto-Bold.ttf", 48)
     i1 = ImageDraw.Draw(img_alot)
-    if(is_alot_of):
+    if is_alot_of:
         i1.text((410, 36), ("ALOT OF\n" + alot_word.upper()), font=alot_font, fill=(0, 0, 0), align="center")
     else:
         i1.text((410, 36), (alot_word.upper() + "\nALOT"), font=alot_font, fill=(0, 0, 0), align="center")
     return img_alot
 
 
-def run_bot(r, comments_replied_to):
+def run_bot( r, comments_replied_to ):
     sub_idx = 0
     if len(subredditsToSearch) > 1:
-        sub_idx = random.randint(0, (len(subredditsToSearch)-1))
+        sub_idx = random.randint(0, (len(subredditsToSearch) - 1))
 
     is_alot_of = False
     alot_word = ""
@@ -145,8 +146,8 @@ def run_bot(r, comments_replied_to):
             if "alot of" in comment.body:
                 is_alot_of = True
                 print(comment.body)
-                wordsAfter = comment.body.split("alot of", 1)[1]
-                alot_word = wordsAfter.split()[0]
+                words_after = comment.body.split("alot of", 1)[1]
+                alot_word = words_after.split()[0]
                 print("new alot_word = " + alot_word)
             else:
                 print(comment.body)
@@ -156,7 +157,7 @@ def run_bot(r, comments_replied_to):
                     alot_word = words[words.index('alot') - 1]
                     print("new alot_word = " + alot_word)
 
-            if(alot_word != ""):
+            if alot_word != "":
                 global nlp
                 doc = nlp(alot_word)
                 tag = doc[0].pos_
@@ -170,17 +171,19 @@ def run_bot(r, comments_replied_to):
                     img_alot.show()
 
                     # Upload to Imgur and get direct link to image
-                    imgLink = imgurApi.upload_from_path(path=path_to_img)['link']
+                    img_link = imgurApi.upload_from_path(path=path_to_img)['link']
 
                     reply_text = ""
-                    if(is_alot_of):
-                        reply_text += ("> [alot of " + alot_word + "](" + imgLink + ")")
+                    if is_alot_of:
+                        reply_text += ("> [alot of " + alot_word + "](" + img_link + ")")
                     else:
-                        reply_text += ("> [" + alot_word + " alot](" + imgLink + ")")
+                        reply_text += ("> [" + alot_word + " alot](" + img_link + ")")
                     reply_text += ("\n \n \n*This bot is dedicated to (but in no way endorsed by) Allie Brosh " +
-                                     "for her [groundbreaking documentation on these fantastic creatures]" +
-                                     "(http://hyperboleandahalf.blogspot.com/2010/04/alot-is-better-than-you-at-everything.html).*")
-                    reply_text += ("\n\n*[Original photo](" + originalImageLink + ") by " + photographer + " on Pexels.*")
+                                   "for her [groundbreaking documentation on these fantastic creatures]" +
+                                   "(http://hyperboleandahalf.blogspot.com/2010/04/alot-is-better-than-you-at" +
+                                   "-everything.html).*")
+                    reply_text += ("\n\n*[Original photo](" + originalImageLink + ") by " + photographer +
+                                   "on Pexels.*")
 
                     comment.reply(body=reply_text)
                     print("Replied to comment " + comment.id)
@@ -194,7 +197,6 @@ def run_bot(r, comments_replied_to):
 
     print(comments_replied_to)
     print("Sleeping for 300 seconds...")
-    # Sleep for 300 seconds...
     time.sleep(300)
 
 
