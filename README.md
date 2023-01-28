@@ -1,2 +1,2 @@
-# alot-bot
- 
+# mythical-alot-bot
+
