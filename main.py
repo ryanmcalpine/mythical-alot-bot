@@ -1,6 +1,8 @@
 import os
 import random
 import time
+
+import requests
 from imgurpython import ImgurClient
 from pexels_api import API
 from PIL import Image
@@ -8,7 +10,6 @@ from PIL import ImageDraw
 from PIL import ImageFont
 import praw
 import spacy
-import urllib.request
 
 import connectionconstants
 
@@ -98,7 +99,7 @@ photographer = ""
 originalImageLink = ""
 
 
-def retrieve_photo( query ):
+def retrieve_photo(query):
     # Search for alot_word photo
     pexelsApi.search(query, page=1, results_per_page=15)
 
@@ -114,13 +115,14 @@ def retrieve_photo( query ):
     global originalImageLink
     originalImageLink = photos[photo_idx].original
 
-    opener = urllib.request.URLopener()
-    opener.addheader(('User-Agent', 'Mozilla/5.0'))
-    filename, headers = opener.retrieve(photos[photo_idx].original, 'wordPhoto.png')
+    response = requests.get(photos[photo_idx].original, stream=True)
+    with open('wordPhoto.png', 'wb') as file:
+        for chunk in response.iter_content(1024):
+            file.write(chunk)
 
 
 # Image manipulation - an ALOT is born!
-def create_alot( alot_word, is_alot_of ):
+def create_alot(alot_word, is_alot_of):
     img_background = Image.open("alot-background.png")
     img_mask = Image.open("alot-mask.png").convert('L')
     img_details = Image.open("alot-details.png").convert("RGBA")
@@ -136,7 +138,7 @@ def create_alot( alot_word, is_alot_of ):
     return img_alot
 
 
-def run_bot( r, comments_replied_to ):
+def run_bot(r, comments_replied_to):
     sub_idx = 0
     if len(subredditsToSearch) > 1:
         sub_idx = random.randint(0, (len(subredditsToSearch) - 1))
@@ -213,8 +215,8 @@ comments_replied_to = get_saved_comments()
 # run_bot(reddit, comments_replied_to)
 
 # Use this to run the bot indefinitely (until the program is stopped)
-while True:
-    run_bot(reddit, comments_replied_to)
+# while True:
+#     run_bot(reddit, comments_replied_to)
 
 # Use this to generate an alot for a specific word
 # test = "money"
