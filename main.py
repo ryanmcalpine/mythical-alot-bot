@@ -215,8 +215,8 @@ comments_replied_to = get_saved_comments()
 # run_bot(reddit, comments_replied_to)
 
 # Use this to run the bot indefinitely (until the program is stopped)
-# while True:
-#     run_bot(reddit, comments_replied_to)
+while True:
+    run_bot(reddit, comments_replied_to)
 
 # Use this to generate an alot for a specific word
 # test = "money"
